@@ -102,7 +102,7 @@ if __name__ == "__main__":
             
             df = pd.concat([_df, df])
 
-    today = datetime.today()
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"output_{timestamp}.csv"
 
-    df.to_csv(f"toyosu_bike_sharing_{today}.csv", index=False)
-    
+    df.to_csv(filename, index=False)
