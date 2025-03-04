@@ -1,5 +1,6 @@
 import pandas as pd
 import requests
+from datetime import datetime
 
 
 all_docks = {
@@ -88,14 +89,20 @@ def get_data(city, lot_id):
     
     return df
 
-df = pd.DataFrame()
 
-for city, lots in all_docks.items():
+if __name__ == "__main__":
+
+    df = pd.DataFrame()
+
+    for city, lots in all_docks.items():
+        
+        for lot_id in lots:
+            
+            _df = get_data(city, lot_id)
+            
+            df = pd.concat([_df, df])
+
+    today = datetime.today()
+
+    df.to_csv(f"toyosu_bike_sharing_{today}.csv", index=False)
     
-    for lot_id in lots:
-        
-        _df = get_data(city, lot_id)
-        
-        df = pd.concat([_df, df])
-
-df.to_csv("toyosu_bike_sharing_20250303.csv", index=False)
