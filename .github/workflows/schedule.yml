@@ -1,0 +1,40 @@
+name: API Data Fetcher
+
+on:
+  schedule:
+    - cron: "0 1 * * *"  # Runs daily at 8:00 PM ET (1:00 AM UTC)
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12.4"
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Script
+        run: python script.py
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Find the Latest CSV File
+        run: echo "CSV_FILE=$(ls -t output_*.csv | head -1)" >> $GITHUB_ENV
+
+      - name: Upload CSV to S3 with Timestamp
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: |
+          aws s3 cp $CSV_FILE s3://$AWS_S3_BUCKET/data/
